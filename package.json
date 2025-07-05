@@ -1,0 +1,32 @@
+{
+  "name": "plagiarism",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@huggingface/transformers": "^3.6.1",
+    "express": "^5.1.0",
+    "fast-csv": "^5.0.2",
+    "fast-xml-parser": "^5.2.5",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.3.0",
+    "glob": "^11.0.3",
+    "multer": "^2.0.1",
+    "natural": "^8.1.0",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.10",
+    "onnxruntime-node": "^1.22.0-rev",
+    "path": "^0.12.7",
+    "simple-tokenizer": "^1.0.2",
+    "tokenizers": "^0.13.3",
+    "tokenizers-win32-x64-msvc": "^0.13.4-rc1",
+    "xml2js": "^0.6.2"
+  },
+  "keywords": [],
+  "description": ""
+}

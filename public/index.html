@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Multiple File Upload Append</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right,#23afc8,#fafafa);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .container {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 400px;
+    text-align: center;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  input[type="file"] {
+    width: 100%;
+    margin: 10px 0;
+  }
+  button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background: #3498db;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #2980b9;
+  }
+  #fileList {
+    text-align: left;
+    margin-top: 10px;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 4px;
+    background: #fafafa;
+    font-size: 14px;
+    color: #333;
+  }
+  #fileList div {
+    margin-bottom: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Raise the file and catch the cheater</h1>
+
+  <input type="file" id="fileInput" accept=".txt" multiple />
+  <div id="fileList"><em>No files selected</em></div>
+  <button id="uploadBtn">Upload</button>
+
+  <div id="uploadStatus" style="margin-top:15px; color: rgb(210, 218, 221);"></div>
+</div>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const fileList = document.getElementById('fileList');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const uploadStatus = document.getElementById('uploadStatus');
+  let selectedFiles = [];
+  function fileExists(file) {
+    return selectedFiles.some(f =>
+      f.name === file.name &&
+      f.size === file.size &&
+      f.lastModified === file.lastModified
+    );
+  }
+
+  function updateFileList() {
+    fileList.innerHTML = '';
+    if (selectedFiles.length === 0) {
+      fileList.innerHTML = '<em>No files selected</em>';
+      return;
+    }
+    selectedFiles.forEach(file => {
+      const div = document.createElement('div');
+      div.textContent = file.name;
+      fileList.appendChild(div);
+    });
+  }
+
+  fileInput.addEventListener('change', () => {
+    const files = Array.from(fileInput.files);
+    files.forEach(file => {
+      if (!fileExists(file)) {
+        selectedFiles.push(file);
+      }
+    });
+    updateFileList();
+    fileInput.value = '';
+  });
+
+  uploadBtn.addEventListener('click', () => {
+    if (selectedFiles.length === 0) {
+      alert('Please select files before uploading.');
+      return;
+    }
+
+    uploadStatus.textContent = 'Uploading...';
+    uploadStatus.style.color = 'green';
+
+const formData = new FormData();
+selectedFiles.forEach(file => {
+  formData.append('files', file);
+});
+
+fetch("http://localhost:2025/upload", {
+  method: "POST",
+  body: formData
+})
+    .then(response => {
+      if (!response.ok) throw new Error('Upload failed');
+      return response.json();
+    })
+    .then(data => {
+      let flag = 0;
+      let output = 'Upload successful\n\nResults:\n\n';
+      data.results.forEach(r => {
+        if (r.error) {
+          output += `${r.file1} vs ${r.file2}:  Error - ${r.error}\n`;
+        } else {
+          if(r.plagiarized){
+          flag = 1;
+          output += `${r.file1} ----- ${r.file2} : Plagiarized\n`;
+        }}
+        if(!flag){
+          output = "-- No Plagiarized files --"
+        }
+      });
+      uploadStatus.style.whiteSpace = 'pre-line';
+      uploadStatus.textContent = output;
+      selectedFiles = [];
+      updateFileList();
+    })
+    .catch(err => {
+      uploadStatus.style.color = 'red';
+      uploadStatus.textContent = 'Error: ' + err.message;
+    });
+  });
+</script>
+
+
+</body>
+</html>
